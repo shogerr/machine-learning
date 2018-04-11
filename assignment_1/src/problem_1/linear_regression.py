@@ -1,4 +1,6 @@
+import argparse
 import numpy as np
+import matplotlib.pyplot as plt
 from numpy.linalg import inv
 
 test_data_file = "housing_test.txt"
@@ -17,7 +19,10 @@ def parse_data(filename):
 
     return s
 
-def create_matrices(filename, dummy=0):
+# Create matrices from data.
+# dummy sets dummy column value
+# random_features add n random features
+def create_matrices(filename, dummy=False, random_features=0):
     s = parse_data(filename)
 
     # Create Y matrix
@@ -30,34 +35,72 @@ def create_matrices(filename, dummy=0):
     Y = np.matrix(Y).T
 
     # Add dummy column vector
-    if dummy > 0:
+    if dummy:
         X = np.concatenate((np.matrix([1 for i in range(len(s))]).T, X), axis=1)
+
+    if random_features > 0:
+        for i in range(random_features):
+            v = np.matrix([np.random.uniform(0, 250) for i in range(len(s))])
+            X = np.concatenate((X, v.T), axis=1)
 
     return X, Y
 
+def weight(X, y):
+    return inv(X.T * X) * X.T * y
+
 # Calculate Sum of Squared error (SSE) with matrices
 def SSE(w, X, y):
-    return (y - X*w).T*(y - X*w)
+    return np.asscalar((y - X*w).T*(y - X*w))
 
-# Alternative method for SSE
-def _SSE(w, X, y):
-    s = 0
-    for j in range(y.shape[0]):
-        s += (y[j]-np.matmul(w.T,X[j].T))**2
+# Normalize the SSE by the number of examples
+def ASE(w, X, y):
+    return SSE(w, X, y)/y.shape[0]
 
-    return s
+def test_range(n):
+    r = np.array([x*2 for x in range(1,n)])
+    #r = np.append(r, [125, 150, 200, 250])
 
-# Create matrices from training data
-X, y = create_matrices(train_data_file, 1)
+    n = r.size
 
-# Create weight column vector
-w = inv(X.T * X) * X.T * y
+    d = np.array([])
+    f = np.array([])
 
-# Print average sum error
-print(SSE(w, X, y)/y.shape[0])
+    print("Creating graphs...", end='', flush=True)
 
-# Create matrices from test data
-X, y = create_matrices(test_data_file, 1)
+    for i in range(n):
+        X, y = create_matrices(train_data_file, 1, r[i])
+        w = weight(X, y)
+        d = np.append(d, ASE(w, X, y))
+        X, y = create_matrices(test_data_file, 1, r[i])
+        f = np.append(f, ASE(w, X, y))
 
-# Print average sum error
-print(SSE(w, X, y)/y.shap[0])
+    fig, ax = plt.subplots()
+
+    ax.plot(r, d, label='Training')
+    ax.plot(r, f, label='Testing')
+    ax.legend(loc='upper left')
+    fig.savefig("plot.png")
+    print("Done", flush=True)
+
+def perform_test(dummy=False):
+    # Create matrices from training data
+    X, y = create_matrices(train_data_file, dummy)
+    # Create weight column vector
+    w = weight(X, y)
+    print("w vector:\n{}".format(w))
+    # Print average sum error
+    print("ASE for training: {}".format(ASE(w, X, y)))
+    # Create matrices from test data
+    X, y = create_matrices(test_data_file, dummy)
+    # Print average sum error
+    print("ASE for testing: {}".format(ASE(w, X, y)))
+    print("")
+
+if __name__ == "__main__":
+    print("Dummy Column\n------------")
+    perform_test(dummy=True)
+
+    print("No Dummy Column\n---------------")
+    perform_test(dummy=False)
+
+    test_range(200)
