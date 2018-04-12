@@ -1,3 +1,4 @@
+import numpy as np
 import csv
 
 train_data_file = "usps-4-9-train.csv"
@@ -12,5 +13,16 @@ def parse_data(filename):
 			data.append(line)
 	return data
 
-if __name__ == "main":
-	train_data = parse_data(training_data)
+def create_matrices(filename):
+	data = parse_data(filename)
+
+	Y = []
+	[Y.append(x.pop()) for x in data]
+
+	X = np.matrix(data)
+	Y = np.matrix(Y).T
+
+	return X, Y
+
+if __name__ == "__main__":
+	X, Y = create_matrices(train_data_file)
