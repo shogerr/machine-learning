@@ -37,15 +37,18 @@ def create_matrices(filename):
 if __name__ == "__main__":
 	X, Y = create_matrices(train_data_file)
 
-	empty_list = [0]*X.shape[0]
+	empty_list = [0]*X.shape[1]
 	w = np.matrix(empty_list)
 
 	start_time = time.time()
 	# pseudo do while loop
 	while True:
+		# reset gradient
 		gradient = np.matrix(empty_list)
 		for i in range(X.shape[0]):
-			y_hat = np.linalg.inv(1 + np.exp(w.T*X[i]*-1))
+			print(X[i].shape)
+			print ((1 + np.exp(w.T*X[i]*-1)))
+			y_hat = np.linalg.inv(1 + np.exp(w.T*X[i]*-1)) # singular matrix error here
 			print (y_hat.shape, Y[i].shape)
 			gradient = gradient + (y_hat - Y[i])*X[i].T # .T on X might be wrong but errors otherwise
 		
@@ -53,4 +56,4 @@ if __name__ == "__main__":
 		# do while conditional
 		if np.linalg.norm(gradient) <= epsilon:
 			break
-	print(time.time() - start_time)
+	print("Run time: " + time.time() - start_time)
