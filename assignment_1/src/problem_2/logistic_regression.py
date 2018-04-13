@@ -6,7 +6,7 @@ train_data_file = "usps-4-9-train.csv"
 test_data_file = "usps-4-9-test.csv"
 
 epsilon = .1
-eta = 1
+eta = .2
 
 def parse_data(filename):
 	data = []
@@ -41,13 +41,16 @@ if __name__ == "__main__":
 	w = np.matrix(empty_list)
 
 	start_time = time.time()
+	# pseudo do while loop
 	while True:
 		gradient = np.matrix(empty_list)
 		for i in range(X.shape[0]):
-			y_hat = 1/(1 + np.exp(w.T*X[i]*-1))
+			y_hat = np.linalg.inv(1 + np.exp(w.T*X[i]*-1))
+			print (y_hat.shape, Y[i].shape)
 			gradient = gradient + (y_hat - Y[i])*X[i].T # .T on X might be wrong but errors otherwise
 		
-		w = w - eta*gradient
-		if gradient <= epsilon:
+		w = w - (eta*gradient)
+		# do while conditional
+		if np.linalg.norm(gradient) <= epsilon:
 			break
 	print(time.time() - start_time)
