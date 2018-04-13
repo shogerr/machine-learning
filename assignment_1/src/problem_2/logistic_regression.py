@@ -1,9 +1,12 @@
 import numpy as np
 import csv
-from math import exp
+import time
 
 train_data_file = "usps-4-9-train.csv"
 test_data_file = "usps-4-9-test.csv"
+
+epsilon = .1
+eta = 1
 
 def parse_data(filename):
 	data = []
@@ -34,8 +37,17 @@ def create_matrices(filename):
 if __name__ == "__main__":
 	X, Y = create_matrices(train_data_file)
 
-	w = [0]*X.shape[0]
-	w = np.matrix(w)
+	empty_list = [0]*X.shape[0]
+	w = np.matrix(empty_list)
 
-	for i in range(X.shape[0]):
-		y_hat = 1/(1 + exp(w.T*X[i]*-1))
+	start_time = time.time()
+	while True:
+		gradient = np.matrix(empty_list)
+		for i in range(X.shape[0]):
+			y_hat = 1/(1 + np.exp(w.T*X[i]*-1))
+			gradient = gradient + (y_hat - Y[i])*X[i].T # .T on X might be wrong but errors otherwise
+		
+		w = w - eta*gradient
+		if gradient <= epsilon:
+			break
+	print(time.time() - start_time)
