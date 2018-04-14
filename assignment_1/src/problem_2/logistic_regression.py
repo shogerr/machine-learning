@@ -38,6 +38,9 @@ def create_matrices(filename):
 
 	return X, Y
 
+def sigmoid(weight, X):
+	return 1/(1 + np.exp(-np.dot(weight, X)))
+
 if __name__ == "__main__":
 	X, Y = create_matrices(train_data_file)
 
@@ -52,9 +55,10 @@ if __name__ == "__main__":
 		# reset gradient
 		gradient = np.matrix(empty_list)
 		for i in range(X.shape[0]):
-			print("iteration: " + str(i))
+			#print("iteration: " + str(i))
 			# A1 flattens X[i] to match w.T
-			y_hat = 1/(1 + np.exp(-np.dot(w.T, X[i].A1)))
+			#y_hat = 1/(1 + np.exp(-np.dot(w.T, X[i].A1)))
+			y_hat = sigmoid(w.T, X[i].A1)
 			if y_hat >= .5:
 				y_hat = 1
 
@@ -65,4 +69,4 @@ if __name__ == "__main__":
 		# do while conditional
 		if np.linalg.norm(gradient) <= epsilon:
 			break
-	print("Run time: " + time.time() - start_time)
+	print("Run time: " + str(time.time() - start_time))
