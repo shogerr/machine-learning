@@ -31,7 +31,6 @@ def create_matrices(filename):
 	[Y.append(x.pop()) for x in data]
 
 	# make matrix of features 
-	#X = np.matrix(data)
 	X = np.matrix([[x/255 for x in t] for t in data])
 
 	# make matrix of results and Tranpose into a column
@@ -51,27 +50,29 @@ def sigmoid(weight, X):
 def train(data_filename):
 	X, Y = create_matrices(data_filename)
 
-	empty_list = [0]*X.shape[1]
 	#w = np.matrix(empty_list)
 	#w = np.matrix([np.random.uniform(0, 1) for i in range(X.shape[1])])
-	w = np.zeros(256)
+	w = np.zeros(X.shape[1])
 
 	# pseudo do while loop
 	while True:
 		# reset gradient
-		gradient = np.matrix(empty_list)
+		gradient = np.zeros(X.shape[1])
 		for i in range(X.shape[0]):
-			#print("iteration: " + str(i))
-			# A1 flattens X[i] to match w.T
-			#y_hat = 1/(1 + np.exp(-np.dot(w.T, X[i].A1)))
+			# A1 flattens X[i] to match shape of w.T
 			y_hat = sigmoid(w.T, X[i].A1)
+
+			# only looking for 1 or 0
 			if y_hat >= .5:
 				y_hat = 1
 
+			#calculate change in gradient
 			gradient = gradient + (y_hat - Y[i])*X[i]
 		
+		# modify weights with calculated gradient
 		w = w - (eta*gradient)
-		w = w.A1 # might be incorrect but it makes it work. doesn't lose any data
+		# above calculation adds dimenision to w, needs to be flattened again
+		w = w.A1
 		# do while conditional
 		if np.linalg.norm(gradient) <= epsilon:
 			break
@@ -86,13 +87,16 @@ def test(data_filename, w):
 	total = 0
 	success = 0
 	for i in range(X.shape[0]):
+		# run sigmoid function uses weights
 		y_hat = sigmoid(w.T, X[i].A1)
+		# check if it guessed correctly
 		if y_hat >= .5 and Y[i] == 1:
 			success += 1
 		elif y_hat < .5 and Y[i] == 0:
 			success += 1
 		total += 1
 
+	# calculate success rate
 	rate = float(success)/float(total)
 	print("success rate: " + str(rate*100))
 	return rate
@@ -104,4 +108,5 @@ if __name__ == "__main__":
 	w = train(train_data_file)
 	print("Run time: " + str(time.time() - start_time))
 
+	# perform tests on learned weights
 	test(test_data_file, w)
