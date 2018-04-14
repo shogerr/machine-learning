@@ -22,6 +22,7 @@ def parse_data(filename):
 	data = [[float(x) for x in t] for t in data]
 	return data
 
+
 def create_matrices(filename):
 	data = parse_data(filename)
 	
@@ -38,9 +39,15 @@ def create_matrices(filename):
 
 	return X, Y
 
+
+# calculates sigmoid expression
+# weight: one dimensional matrix row/column
+# X: one dimensional matrix orientation opposite weight
 def sigmoid(weight, X):
 	return 1/(1 + np.exp(-np.dot(weight, X)))
 
+
+# runs training algorithm from given data filename
 def train(data_filename):
 	X, Y = create_matrices(data_filename)
 
@@ -71,8 +78,30 @@ def train(data_filename):
 
 	return w
 
+
+# performs test using weights derived from train
+def test(data_filename, w):
+	X, Y = create_matrices(data_filename)
+
+	total = 0
+	success = 0
+	for i in range(X.shape[0]):
+		y_hat = sigmoid(w.T, X[i].A1)
+		if y_hat >= .5 and Y[i] == 1:
+			success += 1
+		elif y_hat < .5 and Y[i] == 0:
+			success += 1
+		total += 1
+
+	rate = float(success)/float(total)
+	print("success rate: " + str(rate*100))
+	return rate
+		
+
 if __name__ == "__main__":
+	# run training algorithm
 	start_time = time.time()
 	w = train(train_data_file)
-	print (w)
 	print("Run time: " + str(time.time() - start_time))
+
+	test(test_data_file, w)
