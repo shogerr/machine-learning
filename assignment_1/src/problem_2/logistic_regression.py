@@ -41,15 +41,14 @@ def create_matrices(filename):
 def sigmoid(weight, X):
 	return 1/(1 + np.exp(-np.dot(weight, X)))
 
-if __name__ == "__main__":
-	X, Y = create_matrices(train_data_file)
+def train(data_filename):
+	X, Y = create_matrices(data_filename)
 
 	empty_list = [0]*X.shape[1]
 	#w = np.matrix(empty_list)
 	#w = np.matrix([np.random.uniform(0, 1) for i in range(X.shape[1])])
 	w = np.zeros(256)
 
-	start_time = time.time()
 	# pseudo do while loop
 	while True:
 		# reset gradient
@@ -69,4 +68,11 @@ if __name__ == "__main__":
 		# do while conditional
 		if np.linalg.norm(gradient) <= epsilon:
 			break
+
+	return w
+
+if __name__ == "__main__":
+	start_time = time.time()
+	w = train(train_data_file)
+	print (w)
 	print("Run time: " + str(time.time() - start_time))
