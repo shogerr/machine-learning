@@ -7,9 +7,9 @@ train_data_file = "usps-4-9-train.csv"
 test_data_file = "usps-4-9-test.csv"
 
 # exit condition
-epsilon = .1
+epsilon = 25
 # learning rate
-eta = .2
+eta = .02
 
 def parse_data(filename):
 	data = []
@@ -50,10 +50,10 @@ def sigmoid(weight, X):
 def train(data_filename):
 	X, Y = create_matrices(data_filename)
 
-	#w = np.matrix(empty_list)
-	#w = np.matrix([np.random.uniform(0, 1) for i in range(X.shape[1])])
 	w = np.zeros(X.shape[1])
 
+	iteration = 0
+	accuracy_file = open("accuracy.csv", "w+")
 	# pseudo do while loop
 	while True:
 		# reset gradient
@@ -73,9 +73,16 @@ def train(data_filename):
 		w = w - (eta*gradient)
 		# above calculation adds dimenision to w, needs to be flattened again
 		w = w.A1
+
+		iter_rate = test(test_data_file, w)
+		accuracy_file.write(str(iteration) + "," + str(iter_rate) + "\n")
+		iteration += 1
+
 		# do while conditional
 		if np.linalg.norm(gradient) <= epsilon:
 			break
+
+	accuracy_file.close()
 
 	return w
 
@@ -99,7 +106,6 @@ def test(data_filename, w):
 
 	# calculate success rate
 	rate = float(success)/float(total)
-	print("success rate: " + str(rate*100))
 	return rate
 		
 
@@ -110,4 +116,5 @@ if __name__ == "__main__":
 	print("Run time: " + str(time.time() - start_time))
 
 	# perform tests on learned weights
-	test(test_data_file, w)
+	rate = test(test_data_file, w)
+	print("success rate: " + str(rate*100))
