@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 import time
+import sys
 
 train_data_file = "usps-4-9-train.csv"
 test_data_file = "usps-4-9-test.csv"
@@ -23,7 +24,7 @@ def parse_data(filename):
 
 def create_matrices(filename):
 	data = parse_data(filename)
-
+	
 	#pop trailing 0s and 1s representing 4s and 9s
 	Y = []
 	[Y.append(x.pop()) for x in data]
@@ -41,8 +42,9 @@ if __name__ == "__main__":
 	X, Y = create_matrices(train_data_file)
 
 	empty_list = [0]*X.shape[1]
-	w = np.matrix(empty_list)
+	#w = np.matrix(empty_list)
 	#w = np.matrix([np.random.uniform(0, 1) for i in range(X.shape[1])])
+	w = np.zeros(256)
 
 	start_time = time.time()
 	# pseudo do while loop
@@ -50,16 +52,16 @@ if __name__ == "__main__":
 		# reset gradient
 		gradient = np.matrix(empty_list)
 		for i in range(X.shape[0]):
-			print(-w.T)
-			print(X[i])
-			print()
-			print ((-w.T*X[i]))
-			print (1 + (np.exp(-w.T*X[i]))) # always returns matrix full of 2s, exp is running as if arugment is all 0s
-			y_hat = np.linalg.inv(1 + np.exp(-1*w.T*X[i])) # singular matrix error here
-			print (y_hat.shape, Y[i].shape)
-			gradient = gradient + (y_hat - Y[i])*X[i].T # .T on X might be wrong but errors otherwise
+			print("iteration: " + str(i))
+			# A1 flattens X[i] to match w.T
+			y_hat = 1/(1 + np.exp(-np.dot(w.T, X[i].A1)))
+			if y_hat >= .5:
+				y_hat = 1
+
+			gradient = gradient + (y_hat - Y[i])*X[i]
 		
 		w = w - (eta*gradient)
+		w = w.A1 # might be incorrect but it makes it work. doesn't lose any data
 		# do while conditional
 		if np.linalg.norm(gradient) <= epsilon:
 			break
