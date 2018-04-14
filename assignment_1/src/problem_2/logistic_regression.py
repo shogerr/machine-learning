@@ -81,6 +81,7 @@ def train(data_filename):
 
 
 # performs test using weights derived from train
+# w: single dimenisional matrix should same orientation as X
 def test(data_filename, w):
 	X, Y = create_matrices(data_filename)
 
