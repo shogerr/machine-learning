@@ -72,7 +72,7 @@ def train(data_filename, regularize=False, find_accuracy=False, l=0):
             gradient = gradient + (y_hat - Y[i])*X[i]
 			# perform regularization
             if regularize:
-                gradient = gradient + l * w
+                gradient = gradient + l * w * eta
 
         # modify weights with calculated gradient
         w = w - (eta*gradient)
