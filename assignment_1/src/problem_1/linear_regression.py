@@ -65,7 +65,7 @@ def test_range(n):
     d = np.array([])
     f = np.array([])
 
-    print("Creating graphs...", end='', flush=True)
+    #print("Creating graphs...", end='', flush=True)
 
     for i in range(n):
         X, y = create_matrices(train_data_file, 1, r[i])
@@ -74,13 +74,13 @@ def test_range(n):
         X, y = create_matrices(test_data_file, 1, r[i])
         f = np.append(f, ASE(w, X, y))
 
-    fig, ax = plt.subplots()
+    #fig, ax = plt.subplots()
 
-    ax.plot(r, d, label='Training')
-    ax.plot(r, f, label='Testing')
-    ax.legend(loc='upper left')
-    fig.savefig("plot.png")
-    print("Done", flush=True)
+    #ax.plot(r, d, label='Training')
+    #ax.plot(r, f, label='Testing')
+    #ax.legend(loc='upper left')
+    #fig.savefig("plot.png")
+    #print("Done", flush=True)
 
 def perform_test(dummy=False):
     # Create matrices from training data
