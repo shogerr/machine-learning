@@ -64,16 +64,15 @@ def train(data_filename, regularize=False, find_accuracy=False, l=0):
             # A1 flattens X[i] to match shape of w.T
             y_hat = sigmoid(w.T, X[i].A1)
 
-            # perform regularization
-            if regularize:
-                y_hat += .5 * l * np.linalg.norm(w, 2)
-
             # only looking for 1 or 0
             if y_hat >= .5:
                 y_hat = 1
 
             #calculate change in gradient
             gradient = gradient + (y_hat - Y[i])*X[i]
+			# perform regularization
+            if regularize:
+                gradient = gradient + l * w
 
         # modify weights with calculated gradient
         w = w - (eta*gradient)
@@ -129,14 +128,14 @@ if __name__ == "__main__":
     print("success rate: " + str(rate*100))
 
     # perform tests for different values of lambda
-    l_test = [-10, 1, 10, 100, 1000]
+    l_test = [10**-5, 10**-4, 10**-3]
     test_results = []
-    train_result = []
+    train_results = []
     for l in l_test:
-        print(l)
+        print("lambda: " + str(l))
         w = train(train_data_file, regularize=True, l=l)
-        test_results.append(test(w, train_data_file))
-        train_results.append(test(w, test_data_file))
+        test_results.append(test(train_data_file, w))
+        train_results.append(test(test_data_file, w))
 
     with open('lamda_results.csv', 'w') as f:
         for i in range(len(l_test)):
