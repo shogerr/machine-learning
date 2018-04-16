@@ -128,14 +128,14 @@ if __name__ == "__main__":
     print("success rate: " + str(rate*100))
 
     # perform tests for different values of lambda
-    l_test = [10**-5, 10**-4, 10**-3]
+    l_test = [10**-6, 10**-5, 10**-4, 10**-3]
     test_results = []
     train_results = []
     for l in l_test:
         print("lambda: " + str(l))
         w = train(train_data_file, regularize=True, l=l)
-        test_results.append(test(train_data_file, w))
-        train_results.append(test(test_data_file, w))
+        test_results.append(test(test_data_file, w))
+        train_results.append(test(train_data_file, w))
 
     with open('lamda_results.csv', 'w') as f:
         for i in range(len(l_test)):
