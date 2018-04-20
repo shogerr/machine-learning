@@ -8,9 +8,10 @@ test_data_file = "usps-4-9-test.csv"
 
 # exit condition
 epsilon = 25
+epoch_max = 200
 
 # learning rate
-eta = .02
+eta = .001
 
 def parse_data(filename):
     data = []
@@ -33,7 +34,7 @@ def create_matrices(filename):
 
     # make matrix of features 
     X = np.matrix([[x/255 for x in t] for t in data])
-
+    X = np.concatenate((np.matrix([1 for i in range(len(data))]).T, X), axis=1)
     # make matrix of results and Tranpose into a column
     Y = np.matrix(Y).T
 
@@ -44,8 +45,7 @@ def create_matrices(filename):
 # weight: one dimensional matrix row/column
 # X: one dimensional matrix orientation opposite weight
 def sigmoid(weight, X):
-    return 1/(1 + np.exp(-np.dot(weight, X)))
-
+    return 1/(1 + np.exp(-1*np.dot(weight, X)))
 
 # runs training algorithm from given data filename
 def train(data_filename, regularize=False, find_accuracy=False, l=0):
@@ -55,7 +55,9 @@ def train(data_filename, regularize=False, find_accuracy=False, l=0):
     w = np.zeros(X.shape[1])
 
     iteration = 0
-    accuracy_file = open("accuracy.csv", "w+")
+    accuracy_file = None
+    if find_accuracy:
+        accuracy_file = open("accuracy.csv", "w+")
     # pseudo do while loop
     while True:
         # reset gradient
@@ -64,18 +66,16 @@ def train(data_filename, regularize=False, find_accuracy=False, l=0):
             # A1 flattens X[i] to match shape of w.T
             y_hat = sigmoid(w.T, X[i].A1)
 
-            # only looking for 1 or 0
-            if y_hat >= .5:
-                y_hat = 1
-
-            #calculate change in gradient
+             #calculate change in gradient
             gradient = gradient + (y_hat - Y[i])*X[i]
-			# perform regularization
-            if regularize:
-                gradient = gradient + l * w * eta
+            # perform regularization
 
         # modify weights with calculated gradient
-        w = w - (eta*gradient)
+        if regularize:
+            w = w - eta * (gradient + l * w)
+        else:
+            w = w - eta * gradient
+
         # above calculation adds dimenision to w, needs to be flattened again
         w = w.A1
 
@@ -83,14 +83,15 @@ def train(data_filename, regularize=False, find_accuracy=False, l=0):
             train_iter_rate = test(train_data_file, w)
             iter_rate = test(test_data_file, w)
             accuracy_file.write(str(iteration) + ',' + str(train_iter_rate) + ',' + str(iter_rate) + '\n')
-            iteration += 1
 
+        iteration += 1
         # do while conditional
-        print(np.linalg.norm(gradient))
-        if np.linalg.norm(gradient) <= epsilon:
+        #print(np.linalg.norm(gradient))
+        if iteration > epoch_max:
             break
 
-    accuracy_file.close()
+    if find_accuracy:
+        accuracy_file.close()
 
     return w
 
@@ -115,9 +116,13 @@ def test(data_filename, w):
     # calculate success rate
     rate = float(success)/float(total)
     return rate
-        
 
 if __name__ == "__main__":
+
+    #X, Y = create_matrices(train_data_file)
+    #print(X.shape)
+    #sys.exit(0)
+
     # run training algorithm
     start_time = time.time()
     w = train(train_data_file, find_accuracy=True)
@@ -128,7 +133,7 @@ if __name__ == "__main__":
     print("success rate: " + str(rate*100))
 
     # perform tests for different values of lambda
-    l_test = [10**-6, 10**-5, 10**-4, 10**-3]
+    l_test = [10**-1, 1, 10**1, 10**2, 10**3]
     test_results = []
     train_results = []
     for l in l_test:
