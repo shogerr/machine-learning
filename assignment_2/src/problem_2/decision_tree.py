@@ -9,10 +9,16 @@ def loadMatrices(file_name):
 
 	return X, y
 
+# normalizes x matrix values to be between 0 and 1
+def normalize(x):
+	return x / x.max(axis=0)
+
 if __name__ == "__main__":
 	# load test data
 	X, y = loadMatrices("../knn_test.csv")
 
+	# normalize data in X
+	X = normalize(X)
 	print(X)
 	print()
 	print(y)
