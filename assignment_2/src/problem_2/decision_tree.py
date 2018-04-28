@@ -5,7 +5,7 @@ MALIGNANT = 1
 BENIGN = -1
 
 # decision tree depth limits
-d = [1, 2, 3, 4, 5, 6]
+d = [0, 1, 2, 3, 4, 5, 6]
 
 # loads data from text file with comma delimiter into numpy matrices
 def loadMatrices(file_name):
@@ -100,10 +100,13 @@ def info_gain(y, y1, y2):
 	return entropy(y) - p1*entropy(y1) - p2*entropy(y2)
 
 
-def binary_split(node):
+def binary_split(node, max_depth):
 	# used to track the best information gain
 	#node = DecisionNode()
 	#node.y = y
+
+	if node.depth >= max_depth:
+		return node
 
 	X = node.X
 	y = node.y
@@ -129,14 +132,18 @@ def binary_split(node):
 		if gain > node.gain:
 			node.gain = gain
 			node.decision_index = i
-			node.child_left = DecisionNode(X_left, y_left, node.depth)
-			node.child_right = DecisionNode(X_right, y_right, node.depth)
+			node.child_left = DecisionNode(np.matrix(X_left).A, y_left, node.depth+1)
+			node.child_right = DecisionNode(np.matrix(X_right).A, y_right, node.depth+1)
+
+	# recurse down left and right side of tree
+	binary_split(node.child_left, max_depth)
+	binary_split(node.child_right, max_depth)
 
 	return node
 
 
 # runs decision tree algorithm
-def train(file_name):
+def train(file_name, max_depth):
 	# load training data
 	X, y = loadMatrices(file_name)
 
@@ -147,7 +154,7 @@ def train(file_name):
 	head_node = DecisionNode(X, y, 0)
 
 	# create node based on best binary_split
-	head_node = binary_split(head_node)
+	head_node = binary_split(head_node, max_depth)
 
 	return head_node
 
@@ -182,7 +189,7 @@ def test(file_name, head_node):
 
 
 if __name__ == "__main__":
-	head_node = train("../knn_train.csv")
+	head_node = train("../knn_train.csv", d[2])
 
 	#print gain from training
 	print("Root node gain: " + str(head_node.gain))
