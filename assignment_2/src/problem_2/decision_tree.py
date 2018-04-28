@@ -51,6 +51,18 @@ def entropy(y):
 	return E
 
 
+def binary_split(X, y):
+	for i in range(X.shape[1]):
+		y_left, y_right = [], []
+		for j in range(X.shape[0]):
+			if X[j][i] >= .5:
+				y_right.append(y[j])
+			else:
+				y_left.append(y[j])
+
+		print(entropy(y_left), entropy(y_right))
+
+
 def train(file_name):
 	# load test data
 	X, y = loadMatrices(file_name)
@@ -58,7 +70,7 @@ def train(file_name):
 	# normalize data in X
 	X = normalize(X)
 
-	entropy(y)
+	binary_split(X, y)
 
 
 if __name__ == "__main__":
