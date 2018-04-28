@@ -1,6 +1,9 @@
 import numpy as np
 from decision_node import *
 
+MALIGNANT = 1
+BENIGN = -1
+
 # loads data from text file with comma delimiter into numpy matrices
 def loadMatrices(file_name):
 	data = np.loadtxt(open(file_name, "rb"), delimiter=',').astype("float")
@@ -10,6 +13,34 @@ def loadMatrices(file_name):
 
 	return X, y
 
+# generates a graph file to generate an image with graphviz
+def genGraphFile(file_name, head_node):
+	values = value_counter(head_node.y, ret_dict=True)
+	main_label = "S | " + str(values[MALIGNANT]) + " : " + str(values[BENIGN])
+
+	values = value_counter(head_node.child_left[1], ret_dict=True)
+	if values[MALIGNANT] > values[BENIGN]:
+		left_label = "MALIGNANT | "
+	else:
+		left_label = "BENIGN | "
+	left_label += str(values[MALIGNANT]) + " : " + str(values[BENIGN])
+
+	values = value_counter(head_node.child_right[1], ret_dict=True)
+	if values[MALIGNANT] > values[BENIGN]:
+		right_label = "MALIGNANT | "
+	else:
+		right_label = "BENIGN | "
+	right_label += str(values[MALIGNANT]) + " : " + str(values[BENIGN])
+
+	with open(file_name, 'w+')as f:
+		f.write("digraph G {\n")
+		f.write("main [label=\"" + main_label + "\"];\n")
+		f.write("left [label=\"" + left_label + "\"];\n")
+		f.write("main -> left;\n")
+		f.write("right [label=\"" + right_label + "\"];\n")
+		f.write("main -> right;\n")
+		f.write("}")
+
 
 # normalizes x matrix values to be between 0 and 1
 def normalize(x):
@@ -18,7 +49,7 @@ def normalize(x):
 
 # counts occurences of values
 # returns list of each value / total
-def value_counter(y, dict=False):
+def value_counter(y, ret_dict=False):
 	values = {}
 	total = 0
 	# count occurences of each value found in y
@@ -30,7 +61,7 @@ def value_counter(y, dict=False):
 		total += 1
 
 	# return values dictionary if param is set
-	if dict:
+	if ret_dict:
 		return values
 
 	# write values found / total values into a list
@@ -66,6 +97,7 @@ def info_gain(y, y1, y2):
 def binary_split(X, y):
 	# used to track the best information gain
 	node = DecisionNode()
+	node.y = y
 
 	for i in range(X.shape[1]):
 		y_left, y_right = [], []
@@ -82,8 +114,8 @@ def binary_split(X, y):
 		gain = info_gain(y, y_left, y_right)
 		if gain > node.gain:
 			node.gain = gain
-			node.child_left = X_left
-			node.child_right = X_right
+			node.child_left = (X_left, y_left)
+			node.child_right = (X_right, y_right)
 
 	return node
 
@@ -99,6 +131,8 @@ def train(file_name):
 	# create node based on best binary_split
 	node = binary_split(X, y)
 	print(node.gain)
+
+	genGraphFile("stump.gv", node)
 
 
 if __name__ == "__main__":
