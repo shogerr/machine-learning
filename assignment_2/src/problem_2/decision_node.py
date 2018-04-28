@@ -5,7 +5,7 @@ class DecisionNode:
 	# information gain
 	gain = 0
 	X = []
-	y = []
+	y = None
 	# index of X column that decided the split
 	decision_index = None
 	depth = 0
