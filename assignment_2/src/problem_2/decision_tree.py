@@ -140,7 +140,8 @@ def binary_split(node, max_depth):
 	#node = DecisionNode()
 	#node.y = y
 
-	if node.depth >= max_depth or node.X.shape[1] == 0:
+	values = value_counter(node.y, ret_dict=True)
+	if node.depth >= max_depth or node.X.shape[1] == 0 or MALIGNANT not in values or BENIGN not in values:
 		return node
 
 	X = node.X
