@@ -40,7 +40,7 @@ def value_counter(y):
 # performs uncertainty calculation
 # y: numpy single column array
 def entropy(y):
-	# get p1 and p2 probability
+	# get value probabilities
 	values = value_counter(y)
 
 	# perform entropy calculation
@@ -51,18 +51,34 @@ def entropy(y):
 	return E
 
 
+# runs benefit of split algorithm on y data set and its 2 branches
+def info_gain(y, y1, y2):
+	p1 = float(len(y1))/float(len(y))
+	p2 = float(len(y2))/float(len(y))
+	return entropy(y) - p1*entropy(y1) - p2*entropy(y2)
+
+
 def binary_split(X, y):
+	# used to track the best information gain
+	gain_best = 0.0
+
 	for i in range(X.shape[1]):
 		y_left, y_right = [], []
+
 		for j in range(X.shape[0]):
 			if X[j][i] >= .5:
 				y_right.append(y[j])
 			else:
 				y_left.append(y[j])
 
-		print(entropy(y_left), entropy(y_right))
+		gain = info_gain(y, y_left, y_right)
+		if gain > gain_best:
+			gain_best = gain
+
+	print(gain_best)
 
 
+# runs decision tree algorithm
 def train(file_name):
 	# load test data
 	X, y = loadMatrices(file_name)
