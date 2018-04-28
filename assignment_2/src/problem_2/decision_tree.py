@@ -5,7 +5,7 @@ MALIGNANT = 1
 BENIGN = -1
 
 # decision tree depth limits
-d = [0, 1, 2, 3, 4, 5, 6]
+d = [1, 2, 3, 4, 5, 6]
 
 # used for graph generation
 node_count = 0
@@ -34,7 +34,16 @@ def genGraphNode(node, parent_name):
 	else:
 		output += "BENIGN"
 
-	output += " | " + str(values[MALIGNANT]) + " : " + str(values[BENIGN])
+	output += " | "
+	if MALIGNANT in values:
+		output += str(values[MALIGNANT])
+	else:
+		output += str(0)
+	output += " : "
+	if BENIGN in values:
+		output += str(values[BENIGN])
+	else:
+		output += str(0)
 	output += "\"];\n"
 	output += parent_name + " -> " + name + ";\n"
 
@@ -131,7 +140,7 @@ def binary_split(node, max_depth):
 	#node = DecisionNode()
 	#node.y = y
 
-	if node.depth >= max_depth:
+	if node.depth >= max_depth or node.X.shape[1] == 0:
 		return node
 
 	X = node.X
@@ -155,7 +164,7 @@ def binary_split(node, max_depth):
 		# calculate gain with particular binary split
 		gain = info_gain(y, y_left, y_right)
 		# save binary split if it is better than other iterations
-		if gain > node.gain:
+		if gain >= node.gain:
 			node.gain = gain
 			node.decision_index = i
 			node.child_left = DecisionNode(np.matrix(X_left).A, y_left, node.depth+1)
@@ -215,15 +224,23 @@ def test(file_name, head_node):
 
 
 if __name__ == "__main__":
-	head_node = train("../knn_train.csv", d[2])
+	test_rates = open("test_rates.csv", "w+")
+	train_rates = open("train_rates.csv", "w+")
 
-	#print gain from training
-	print("Root node gain: " + str(head_node.gain))
-	# generate graph file
+	for i in d:
+		head_node = train("../knn_train.csv", i)
+
+		#print gain from training
+		#print("Root node gain: " + str(head_node.gain))
+		# generate graph file
+		#genGraphFile("stump.gv", head_node)
+
+		#get success rate for test data
+		succ_rate = test("../knn_test.csv", head_node)
+		test_rates.write(str(i) + "," + str(succ_rate) + "\n")
+		succ_rate = test("../knn_train.csv", head_node)
+		train_rates.write(str(i) + "," + str(succ_rate) + "\n")
+
+	test_rates.close()
+	train_rates.close()
 	genGraphFile("stump.gv", head_node)
-
-	#get success rate for test data
-	succ_rate = test("../knn_test.csv", head_node)
-	print("Test success rate: " + str(succ_rate))
-	succ_rate = test("../knn_train.csv", head_node)
-	print("Training success rate: " + str(succ_rate))
