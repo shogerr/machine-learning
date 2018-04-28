@@ -1,4 +1,5 @@
 import numpy as np
+from decision_node import *
 
 # loads data from text file with comma delimiter into numpy matrices
 def loadMatrices(file_name):
@@ -60,22 +61,27 @@ def info_gain(y, y1, y2):
 
 def binary_split(X, y):
 	# used to track the best information gain
-	gain_best = 0.0
+	node = DecisionNode()
 
 	for i in range(X.shape[1]):
 		y_left, y_right = [], []
+		X_left, X_right = [], []
 
 		for j in range(X.shape[0]):
 			if X[j][i] >= .5:
 				y_right.append(y[j])
+				X_right.append(X[j])
 			else:
 				y_left.append(y[j])
+				X_left.append(X[j])
 
 		gain = info_gain(y, y_left, y_right)
-		if gain > gain_best:
-			gain_best = gain
+		if gain > node.gain:
+			node.gain = gain
+			node.child_left = X_left
+			node.child_right = X_right
 
-	print(gain_best)
+	print(node.gain, len(node.child_left), len(node.child_right))
 
 
 # runs decision tree algorithm
