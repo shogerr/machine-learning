@@ -18,7 +18,7 @@ def normalize(x):
 
 # counts occurences of values
 # returns list of each value / total
-def value_counter(y):
+def value_counter(y, dict=False):
 	values = {}
 	total = 0
 	# count occurences of each value found in y
@@ -28,6 +28,10 @@ def value_counter(y):
 		else:
 			values[line] = 1
 		total += 1
+
+	# return values dictionary if param is set
+	if dict:
+		return values
 
 	# write values found / total values into a list
 	results = []
@@ -81,7 +85,7 @@ def binary_split(X, y):
 			node.child_left = X_left
 			node.child_right = X_right
 
-	print(node.gain, len(node.child_left), len(node.child_right))
+	return node
 
 
 # runs decision tree algorithm
@@ -92,7 +96,9 @@ def train(file_name):
 	# normalize data in X
 	X = normalize(X)
 
-	binary_split(X, y)
+	# create node based on best binary_split
+	node = binary_split(X, y)
+	print(node.gain)
 
 
 if __name__ == "__main__":
