@@ -22,6 +22,8 @@ def genGraphFile(file_name, head_node):
 	values = value_counter(head_node.y, ret_dict=True)
 	main_label = "ROOT | " + str(values[MALIGNANT]) + " : " + str(values[BENIGN])
 
+	# left and right label construction can be changed to recursive method
+	# not worth the time now
 	values = value_counter(head_node.child_left.y, ret_dict=True)
 	if values[MALIGNANT] > values[BENIGN]:
 		left_label = "MALIGNANT | "
