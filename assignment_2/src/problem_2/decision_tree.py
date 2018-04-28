@@ -7,6 +7,9 @@ BENIGN = -1
 # decision tree depth limits
 d = [0, 1, 2, 3, 4, 5, 6]
 
+# used for graph generation
+node_count = 0
+
 # loads data from text file with comma delimiter into numpy matrices
 def loadMatrices(file_name):
 	data = np.loadtxt(open(file_name, "rb"), delimiter=',').astype("float")
@@ -15,6 +18,31 @@ def loadMatrices(file_name):
 	X = data[:,1:]
 
 	return X, y
+
+
+def genGraphNode(node, parent_name):
+	global node_count
+
+	name = "a" + str(node_count)
+	node_count += 1
+	values = value_counter(node.y, ret_dict=True)
+
+	output = name + " [label=\""
+	
+	if node.decision == MALIGNANT:
+		output += "MALIGNANT"
+	else:
+		output += "BENIGN"
+
+	output += " | " + str(values[MALIGNANT]) + " : " + str(values[BENIGN])
+	output += "\"];\n"
+	output += parent_name + " -> " + name + ";\n"
+
+	if node.child_left != None:
+		output += genGraphNode(node.child_left, name)
+	if node.child_right != None:
+		output += genGraphNode(node.child_right, name)
+	return output
 
 
 # generates a graph file to generate an image with graphviz
@@ -41,10 +69,8 @@ def genGraphFile(file_name, head_node):
 	with open(file_name, 'w+')as f:
 		f.write("digraph G {\n")
 		f.write("main [label=\"" + main_label + "\"];\n")
-		f.write("left [label=\"" + left_label + "\"];\n")
-		f.write("main -> left;\n")
-		f.write("right [label=\"" + right_label + "\"];\n")
-		f.write("main -> right;\n")
+		f.write(genGraphNode(head_node.child_left, "main"))
+		f.write(genGraphNode(head_node.child_right, "main"))
 		f.write("}")
 
 
