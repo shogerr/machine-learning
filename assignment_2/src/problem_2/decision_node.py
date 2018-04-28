@@ -28,6 +28,6 @@ class DecisionNode:
 			counter[line] += 1
 
 		if counter[MALIGNANT] > counter[BENIGN]:
-			decision = MALIGNANT
+			self.decision = MALIGNANT
 		else:
-			decision = BENIGN
+			self.decision = BENIGN
