@@ -128,7 +128,7 @@ def binary_split(node):
 		# save binary split if it is better than other iterations
 		if gain > node.gain:
 			node.gain = gain
-			node.index = i
+			node.decision_index = i
 			node.child_left = DecisionNode(X_left, y_left, node.depth)
 			node.child_right = DecisionNode(X_right, y_right, node.depth)
 
@@ -137,7 +137,7 @@ def binary_split(node):
 
 # runs decision tree algorithm
 def train(file_name):
-	# load test data
+	# load training data
 	X, y = loadMatrices(file_name)
 
 	# normalize data in X
@@ -148,10 +148,49 @@ def train(file_name):
 
 	# create node based on best binary_split
 	head_node = binary_split(head_node)
-	print(head_node.gain)
 
-	genGraphFile("stump.gv", head_node)
+	return head_node
+
+
+# traveses generated tree recursivally
+def tree_traversal(node, X):
+	# if node is a leaf, return its decision
+	if node.child_right == None or node.child_left == None:
+		return node.decision
+
+	if X[node.decision_index] >= .5:
+		return tree_traversal(node.child_right, X)
+	else:
+		return tree_traversal(node.child_left, X)
+
+# uses head_node tree generated from train to predict test data
+def test(file_name, head_node):
+	# load test data
+	X, y = loadMatrices(file_name)
+
+	X = normalize(X)
+
+	total = X.shape[0]
+	success = 0
+	for i in range(X.shape[0]):
+		result = tree_traversal(head_node, X[i])
+		
+		if result == y[i]:
+			success += 1
+
+	return success/total
 
 
 if __name__ == "__main__":
-	train("../knn_train.csv")
+	head_node = train("../knn_train.csv")
+
+	#print gain from training
+	print("Root node gain: " + str(head_node.gain))
+	# generate graph file
+	genGraphFile("stump.gv", head_node)
+
+	#get success rate for test data
+	succ_rate = test("../knn_test.csv", head_node)
+	print("Test success rate: " + str(succ_rate))
+	succ_rate = test("../knn_train.csv", head_node)
+	print("Training success rate: " + str(succ_rate))
