@@ -2,3 +2,4 @@
 *.swp
 stump.gv
 stump.png
+__pycache__/
