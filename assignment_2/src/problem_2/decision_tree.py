@@ -50,12 +50,15 @@ def entropy(y):
 
 	return E
 
-
-if __name__ == "__main__":
+def train(file_name):
 	# load test data
-	X, y = loadMatrices("../knn_test.csv")
+	X, y = loadMatrices(file_name)
 
 	# normalize data in X
 	X = normalize(X)
 
 	entropy(y)
+
+
+if __name__ == "__main__":
+	train("../knn_train.csv")
