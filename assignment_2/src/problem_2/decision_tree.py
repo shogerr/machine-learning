@@ -50,6 +50,7 @@ def entropy(y):
 
 	return E
 
+
 def train(file_name):
 	# load test data
 	X, y = loadMatrices(file_name)
