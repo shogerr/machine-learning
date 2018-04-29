@@ -5,3 +5,4 @@ stump.png
 __pycache__/
 test_rates.csv
 train_rates.csv
+accuracy.png
