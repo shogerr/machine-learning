@@ -45,6 +45,8 @@ def normalize_features(S):
 
 def calc_error(h, y):
     return (h != y).sum()/h.shape[0]
+def count_error(h, y):
+    return (h != y).sum()
 
 # Get training set S and test set T.
 S = np.loadtxt(open("data/knn_train.csv", "rb"), delimiter=',').astype("float")
@@ -75,6 +77,9 @@ for k in range(1, 70, 2):
     #e_tr = (predictions != S[:,0].A1).sum()/predictions.shape[0]
     #e_te = (predictions_test != S[:,0].A1).sum()/predictions_test.shape[0]
 
-    error_training.append((k, e_tr, e_te, e_cr))
+    error_training.append((k, e_tr, e_te, e_cr,
+        count_error(predictions, S[:,0].A1),
+        count_error(predictions_test, T[:,0].A1),
+        count_error(p, S[:,0].A1)))
 
 np.savetxt("knn_results.csv", np.asarray(error_training), delimiter=',')
