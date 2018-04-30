@@ -1,0 +1,10 @@
+To run decision tree algorithm:
+
+1. source /scratch/cs434spring2018/env_3.5/bin/activate.csh
+2. python3 ./decision_tree.py
+
+This will run using 6 different depth levels (1-6)
+success rate is saved in "train_rates.csv" and "test_rates.csv"
+
+You can then type "make" which will output "stump.png" which shows a representation of the
+last training run (depth of 6)
