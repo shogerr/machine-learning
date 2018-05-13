@@ -75,6 +75,23 @@ def load_data():
 
 	return train_loader, validation_loader
 
+def train(epoch, model, train_loader, optimizer, log_interval=100):
+	model.train()
+	for batch_idx, (data, target) in enumerate(train_loader):
+		if cuda:
+			data, target = data.cuda(), target.cuda()
+
+		data, target = Variable(data), Variable(target)
+		optimizer.zero_grad()
+		output = model(data)
+		loss = F.nll_loss(output, target)
+		loss.backward()
+		optimizer.step()
+		if batch_idx % log_interval == 0:
+			print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+				epoch, batch_idx * len(data), len(train_loader.dataset),
+				100. * batch_idx / len(train_loader), loss.data[0]))
+
 if __name__ == '__main__':
 	train_loader, validation_loader = load_data()
 
@@ -85,3 +102,5 @@ if __name__ == '__main__':
 	optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
 
 	print(model)
+
+	train(1, model, train_loader, optimizer)
