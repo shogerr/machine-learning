@@ -6,3 +6,6 @@ __pycache__/
 test_rates.csv
 train_rates.csv
 accuracy.png
+
+cifar-10-python.tar.gz
+cifar-10-batches-py/
