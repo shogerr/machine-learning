@@ -20,6 +20,7 @@ IMG_HEIGHT = 32
 
 
 class Net(nn.Module):
+	# should play with out_features and dropout levels
 	def __init__(self):
 		super(Net, self).__init__()
 		# nn.Linear(in_features, out_features)
@@ -30,6 +31,8 @@ class Net(nn.Module):
 		self.fc2_drop = nn.Dropout(0.2)
 		self.fc3 = nn.Linear(50, 10)
 
+	# not sure what this does yet. I think it traverses through NN?
+	# backward method is auto generated
 	def forward(self, x):
 		x = x.view(-1, IMG_WIDTH*IMG_HEIGHT)
 		x = F.relu(self.fc1(x))
@@ -57,6 +60,7 @@ def load_data():
 						 ])),
 		batch_size=batch_size, shuffle=False, **kwargs)
 
+	# load training data
 	validation_loader = torch.utils.data.DataLoader(
 		datasets.CIFAR10(DATA_DIR, train=False, transform=transforms.Compose([
 							transforms.ToTensor(),
