@@ -42,12 +42,12 @@ def load_data():
 						 ])),
 		batch_size=batch_size, shuffle=False, **kwargs)
 
-	return train_loader, validation_loader
-
-if __name__ == '__main__':
-	train_loader, validation_loader = load_data()
-
 	for (X_train, y_train) in train_loader:
 		print('X_train:', X_train.size(), 'type:', X_train.type())
 		print('y_train:', y_train.size(), 'type:', y_train.type())
 		break
+
+	return train_loader, validation_loader
+
+if __name__ == '__main__':
+	train_loader, validation_loader = load_data()
