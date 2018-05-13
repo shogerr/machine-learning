@@ -58,7 +58,7 @@ def load_data():
 							transforms.ToTensor(),
 							transforms.Normalize(norm_mean, norm_std)
 						 ])),
-		batch_size=batch_size, shuffle=False, **kwargs)
+		batch_size=batch_size, shuffle=True, **kwargs)
 
 	# load training data
 	validation_loader = torch.utils.data.DataLoader(
