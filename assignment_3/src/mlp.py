@@ -15,6 +15,28 @@ cuda = torch.cuda.is_available()
 print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
 
 DATA_DIR = './'
+IMG_WIDTH = 32
+IMG_HEIGHT = 32
+
+
+class Net(nn.Module):
+	def __init__(self):
+		super(Net, self).__init__()
+		# nn.Linear(in_features, out_features)
+		self.fc1 = nn.Linear(IMG_WIDTH*IMG_HEIGHT, 50)
+		# nn.Dropout(probability dropout i think)
+		self.fc1_drop = nn.Dropout(0.2)
+		self.fc2 = nn.Linear(50, 50)
+		self.fc2_drop = nn.Dropout(0.2)
+		self.fc3 = nn.Linear(50, 10)
+
+	def forward(self, x):
+		x = x.view(-1, IMG_WIDTH*IMG_HEIGHT)
+		x = F.relu(self.fc1(x))
+		x = self.fc1_drop(x)
+		x = F.relu(self.fc2(x))
+		x = self.fc2_drop(x)
+		return F.log_softmax(self.fc3(x))
 
 
 def load_data():
@@ -51,3 +73,11 @@ def load_data():
 
 if __name__ == '__main__':
 	train_loader, validation_loader = load_data()
+
+	model = Net()
+	if cuda:
+		model.cuda()
+
+	optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
+
+	print(model)
