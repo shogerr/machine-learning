@@ -17,6 +17,7 @@ print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
 DATA_DIR = './'
 IMG_WIDTH = 32
 IMG_HEIGHT = 32
+EPOCHS = 10
 
 
 class Net(nn.Module):
@@ -78,6 +79,7 @@ def load_data():
 
 	return train_loader, validation_loader
 
+
 def train(epoch, model, train_loader, optimizer, log_interval=100):
 	model.train()
 	for batch_idx, (data, target) in enumerate(train_loader):
@@ -95,6 +97,29 @@ def train(epoch, model, train_loader, optimizer, log_interval=100):
 				epoch, batch_idx * len(data), len(train_loader.dataset),
 				100. * batch_idx / len(train_loader), loss.data[0]))
 
+def validate(loss_vector, accuracy_vector, model, validation_loader):
+	model.eval()
+	val_loss, correct = 0, 0
+	for data, target in validation_loader:
+		if cuda:
+			data, target = data.cuda(), target.cuda()
+
+		data, target = Variable(data, volatile=True), Variable(target)
+		output = model(data)
+		val_loss += F.nll_loss(output, target).data[0]
+		pred = output.data.max(1)[1]
+		correct += pred.eq(target.data).cpu().sum()
+
+	val_loss /= len(validation_loader)
+	loss_vector.append(val_loss)
+
+	accuracy = 100. * correct / len(validation_loader.dataset)
+	accuracy_vector.append(accuracy)
+
+	print('Validation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+		val_loss, correct, len(validation_loader.dataset), accuracy))
+
+
 if __name__ == '__main__':
 	train_loader, validation_loader = load_data()
 
@@ -106,4 +131,7 @@ if __name__ == '__main__':
 
 	print(model)
 
-	train(1, model, train_loader, optimizer)
+	lossv, accv = [], []
+	for epoch in range(1, EPOCHS + 1):
+		train(epoch, model, train_loader, optimizer)
+		validate(lossv, accv, model, validation_loader)
