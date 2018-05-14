@@ -22,19 +22,22 @@ IMG_HEIGHT = 32
 class Net(nn.Module):
 	# should play with out_features and dropout levels
 	def __init__(self):
+		# set in assignment specification
+		dropout_rate = 0.2
+
 		super(Net, self).__init__()
 		# nn.Linear(in_features, out_features)
-		self.fc1 = nn.Linear(IMG_WIDTH*IMG_HEIGHT, 50)
-		# nn.Dropout(probability dropout i think)
-		self.fc1_drop = nn.Dropout(0.2)
+		self.fc1 = nn.Linear(IMG_WIDTH*IMG_HEIGHT*3, 50)
+		# nn.Dropout(dropout rate)
+		self.fc1_drop = nn.Dropout(dropout_rate)
 		self.fc2 = nn.Linear(50, 50)
-		self.fc2_drop = nn.Dropout(0.2)
+		self.fc2_drop = nn.Dropout(dropout_rate)
 		self.fc3 = nn.Linear(50, 10)
 
 	# not sure what this does yet. I think it traverses through NN?
 	# backward method is auto generated
 	def forward(self, x):
-		x = x.view(-1, IMG_WIDTH*IMG_HEIGHT)
+		x = x.view(-1, IMG_WIDTH*IMG_HEIGHT*3)
 		x = F.relu(self.fc1(x))
 		x = self.fc1_drop(x)
 		x = F.relu(self.fc2(x))
